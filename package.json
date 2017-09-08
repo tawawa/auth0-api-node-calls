@@ -1,0 +1,23 @@
+{
+  "name": "auth0-misc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test/test.js",
+  "scripts": {
+    "test": "mocha test/test.js"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "keywords": [],
+  "author": "arcseldon",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "mocha": "^3.5.0"
+  }
+}
