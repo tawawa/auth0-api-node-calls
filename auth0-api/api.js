@@ -35,6 +35,39 @@ require('dotenv').config();
     };
 
 
+    const getApiV1MgmtToken = () => {
+
+      return new Promise((resolve, reject) => {
+
+        const body = {
+          client_id: process.env.AUTH0_MGMT_V1_CLIENT_ID,
+          client_secret: process.env.AUTH0_MGMT_v1_CLIENT_SECRET,
+          grant_type: 'client_credentials'
+        };
+
+        const uri = `https://${process.env.AUTH0_DOMAIN}/oauth/token`;
+
+        const options = {
+          method: 'POST',
+          url: uri,
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        };
+
+        request(options, (err, response, tokens) => {
+          if (err) {
+            return reject(new Error(err.message));
+          }
+          let reply = JSON.parse(tokens);
+          return resolve(reply);
+        });
+
+      });
+    };
+
+
   const getUser = (mgmtToken, userId) => {
 
       return new Promise((resolve, reject) => {
@@ -92,44 +125,74 @@ require('dotenv').config();
 
         }
 
-  const sendForgotPasswordEmail = (email) => {
+    const sendForgotPasswordEmail = (email) => {
 
-    console.log(`sending password reset for: ${email}`);
+      console.log(`sending password reset for: ${email}`);
 
-    return new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
 
-      var options = {
-        method: 'POST',
-        url: `https://${process.env.AUTH0_DOMAIN}/dbconnections/change_password`,
-        headers: {
-          'content-type': 'application/json'
-        },
-        body: {
-          client_id: process.env.AUTH0_CLIENT_ID,
-          email: email,
-          connection: process.env.AUTH0_CONNECTION
-        },
-        json: true
-      };
+        var options = {
+          method: 'POST',
+          url: `https://${process.env.AUTH0_DOMAIN}/dbconnections/change_password`,
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: {
+            client_id: process.env.AUTH0_CLIENT_ID,
+            email: email,
+            connection: process.env.AUTH0_CONNECTION
+          },
+          json: true
+        };
 
-      request(options, function (error, response, body) {
-        if (error || !(response.statusCode + '').startsWith("2")) {
-          console.log("Failed to send forgot password email.");
-          return reject(error);
-        }
-        console.log(body);
-        return resolve(body);
+        request(options, function (error, response, body) {
+          if (error || !(response.statusCode + '').startsWith("2")) {
+            console.log("Failed to send forgot password email.");
+            return reject(error);
+          }
+          console.log(body);
+          return resolve(body);
+        });
+
       });
 
-    });
+    };
 
-  }
+    const sendVerificationEmail = (mgmtApiV1Token, userId) => {
+
+      console.log(`sending verification email for user with userId: ${userId}`);
+
+      return new Promise((resolve, reject) => {
+
+        var options = {
+          method: 'POST',
+          url: `https://${process.env.AUTH0_DOMAIN}/api/users/${userId}/send_verification_email`,
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${mgmtApiV1Token}`
+          }
+        };
+
+        request(options, function (error, response, body) {
+          if (error || !(response.statusCode + '').startsWith("2")) {
+            console.log("Failed to send verify email.");
+            return reject(error);
+          }
+          console.log(body);
+          return resolve(body);
+        });
+
+      });
+
+    };
 
 
 module.exports = {
   getMgmtToken,
+  getApiV1MgmtToken,
   getUser,
   updateUser,
-  sendForgotPasswordEmail
+  sendForgotPasswordEmail,
+  sendVerificationEmail
 }
 

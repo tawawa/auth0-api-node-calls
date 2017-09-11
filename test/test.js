@@ -13,7 +13,7 @@ describe('Auth0 API calls', function () {
       process.env.AUTH0_DOMAIN = 'localhost:9001';
     }
 
-  it('should get a management token', function (done) {
+  it('should get an API v2 management token', function (done) {
 
     this.timeout(3000);
 
@@ -57,7 +57,7 @@ describe('Auth0 API calls', function () {
 
     });
 
-    it.only('should update a user', function (done) {
+    it('should update a user', function (done) {
 
         this.timeout(5000);
 
@@ -106,6 +106,49 @@ describe('Auth0 API calls', function () {
 
   });
 
+  it('should get a API v1 management token', function (done) {
+
+    this.timeout(3000);
+
+        async function runTest() {
+          try {
+            const response = await api.getApiV1MgmtToken();
+            expect(response).to.have.own.property('access_token');
+          } catch (e) {
+            console.log(e);
+            expect(true).to.be.false;
+          } finally {
+            done();
+          }
+        };
+
+        runTest();
+
+    });
+
+  it('should send verification email', function (done) {
+
+        this.timeout(5000);
+
+        async function runTest() {
+          try {
+            const userId = process.env.USER_ID;
+            const tokens = await api.getApiV1MgmtToken();
+            expect(tokens).to.have.own.property('access_token');
+            const mgmtApiV1Token = tokens.access_token;
+            const response = await api.sendVerificationEmail(mgmtApiV1Token, userId);
+            expect(response).to.eq("OK");
+          } catch (e) {
+            console.log(e);
+            expect(true).to.be.false;
+          } finally {
+            done();
+          }
+        };
+
+        runTest();
+
+      });
 
 
 });
